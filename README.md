@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestión Comercial - Segundo Parcial Programación IV
 
-## Getting Started
+Sistema de gestión comercial para comercio minorista: facturación, control de existencias y cuenta corriente de clientes.
 
-First, run the development server:
+## Integrantes
+
+- Completar con los integrantes del equipo.
+
+## URL pública
+
+- Completar con la URL de Vercel tras el deploy.
+
+## Stack
+
+- Next.js (App Router) + TypeScript
+- Tailwind CSS + componentes UI estilo shadcn/ui
+- Drizzle ORM + drizzle-kit
+- SQLite en desarrollo / libSQL Turso en producción
+- Zod para validación
+- Chart.js + react-chartjs-2
+
+## Puesta en marcha local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+cp .env.example .env
+pnpm run db:migrate
+pnpm run db:seed
+pnpm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+También funcionan los comandos equivalentes con `npm`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Variables de entorno
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ver `.env.example`.
 
-## Learn More
+- `DATABASE_URL`: `file:./local.db` en desarrollo, `libsql://...` en Turso.
+- `TURSO_AUTH_TOKEN`: token de Turso en producción.
+- `AUTH_SECRET`: secreto largo para firmar sesión.
+- `PUNTO_VENTA`: punto de venta, 4 dígitos.
 
-To learn more about Next.js, take a look at the following resources:
+## Usuarios de prueba
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Admin: `admin@comercio.test` / `Admin1234`
+- Vendedor: `vendedor@comercio.test` / `Vendedor1234`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deploy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- App: Vercel.
+- Base de datos: Turso/libSQL.
+- Configurar `DATABASE_URL`, `TURSO_AUTH_TOKEN`, `AUTH_SECRET` y `PUNTO_VENTA` en Vercel.
+- Ejecutar migraciones y seed contra la base Turso antes de la demo.
