@@ -4,11 +4,12 @@ Sistema de gestión comercial para comercio minorista: facturación, control de 
 
 ## Integrantes
 
-- Completar con los integrantes del equipo.
+- Diaz Rossini Juan Jose - Legajo 61744
+- Álvarez Martin - Legajo 61984
 
 ## URL pública
 
-- Completar con la URL de Vercel tras el deploy.
+- https://gestion-comercial-sable.vercel.app
 
 ## Stack
 
