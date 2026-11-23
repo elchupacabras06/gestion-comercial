@@ -64,11 +64,11 @@ export async function listFacturas(searchParams: URLSearchParams) {
   return { ...paged(rows.map((f) => mapFactura(f)), page, pageSize, Number(count)), totalEmitido: Number(tot?.totalEmitido ?? 0) };
 }
 
-export async function getFactura(id: number) {
+export async function getFactura(id: number, tx: any = db) {
   // RF-V7: detalle/comprobante.
-  const f = await db.query.facturas.findFirst({ where: eq(facturas.id, id), with: { cliente: true, usuario: true, anuladaPor: true } });
+  const f = await tx.query.facturas.findFirst({ where: eq(facturas.id, id), with: { cliente: true, usuario: true, anuladaPor: true } });
   if (!f) throw new ApiError(404, "NO_ENCONTRADO", "Factura no encontrada.");
-  const items = await db.query.facturaItems.findMany({ where: eq(facturaItems.facturaId, id), with: { producto: true } });
+  const items = await tx.query.facturaItems.findMany({ where: eq(facturaItems.facturaId, id), with: { producto: true } });
   return mapFactura(f, items);
 }
 
@@ -91,12 +91,16 @@ export async function anularFactura(actor: SessionUser, id: number, input: unkno
       });
     }
     if (f.formaPago === "cuenta_corriente" && f.clienteId) {
-      await tx.insert(movimientosCuenta).values({
-        clienteId: f.clienteId, facturaId: id, tipo: "credito", importe: f.total,
-        descripcion: `Anulación factura ${formatFacturaNumero(f.puntoVenta, f.numero)}`, fecha: now,
-      });
+      const saldo = await getSaldoClienteTx(tx, f.clienteId);
+      const credito = Math.min(f.total, Math.max(saldo, 0));
+      if (credito > 0) {
+        await tx.insert(movimientosCuenta).values({
+          clienteId: f.clienteId, facturaId: id, tipo: "credito", importe: credito,
+          descripcion: `Anulación factura ${formatFacturaNumero(f.puntoVenta, f.numero)}`, fecha: now,
+        });
+      }
     }
-    return getFactura(id);
+    return getFactura(id, tx);
   });
 }
 
