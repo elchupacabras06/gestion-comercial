@@ -31,14 +31,23 @@ export async function getTablero() {
   const [bmRow] = await db.select({ cantidad: sql<number>`count(*)` }).from(productos)
     .where(and(eq(productos.activo, true), sql`${productos.existencia} < ${productos.stockMinimo}`));
 
+  const desde30 = new Date(hoyStart);
+  desde30.setUTCDate(desde30.getUTCDate() - 29);
+  const ventasPorDia = await db
+    .select({
+      fecha: sql<string>`date(datetime(${facturas.fecha}, 'unixepoch', '-3 hours'))`,
+      importe: sql<number>`coalesce(sum(${facturas.total}),0)`,
+    })
+    .from(facturas)
+    .where(and(emitidas, gte(facturas.fecha, desde30)))
+    .groupBy(sql`date(datetime(${facturas.fecha}, 'unixepoch', '-3 hours'))`);
+  const porDia = new Map(ventasPorDia.map((r) => [r.fecha, Number(r.importe ?? 0)]));
   const dias: { fecha: string; importe: number }[] = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(hoyStart);
     d.setUTCDate(d.getUTCDate() - i);
-    const d2 = new Date(d); d2.setUTCDate(d2.getUTCDate() + 1);
-    const [r] = await db.select({ importe: sql<number>`coalesce(sum(${facturas.total}),0)` }).from(facturas)
-      .where(and(emitidas, gte(facturas.fecha, d), lte(facturas.fecha, d2)));
-    dias.push({ fecha: d.toISOString().slice(0, 10), importe: Number(r?.importe ?? 0) });
+    const fecha = d.toISOString().slice(0, 10);
+    dias.push({ fecha, importe: porDia.get(fecha) ?? 0 });
   }
 
   const formas = await db.select({ forma: facturas.formaPago, importe: sql<number>`coalesce(sum(${facturas.total}),0)` })
