@@ -17,8 +17,10 @@ export function AppShell({ children, user }: { children: ReactNode; user: Sessio
     <div className="min-h-screen md:grid md:grid-cols-[240px_1fr]">
       <aside className="border-b bg-white p-4 md:min-h-screen md:border-b-0 md:border-r">
         <div className="mb-6">
-          <p className="text-lg font-semibold">Gestión Comercial</p>
-          <p className="text-xs text-muted-foreground">Segundo parcial Prog IV</p>
+          <Link href="/" className="block">
+            <p className="text-lg font-semibold">Gestión Comercial</p>
+            <p className="text-xs text-muted-foreground">Segundo parcial Prog IV</p>
+          </Link>
         </div>
         <nav className="flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
           {nav.filter((i) => !i.admin || user?.rol === "admin").map((item) => {
